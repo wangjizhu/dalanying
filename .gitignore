@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+dalanying.db
+dalanying.db-wal
+dalanying.db-shm
+served.html
+node_modules/
