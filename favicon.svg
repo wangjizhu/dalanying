@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="大蓝营">
-  <rect width="96" height="96" rx="24" fill="#2442FF"/>
-  <text x="48" y="52" text-anchor="middle" dominant-baseline="central"
-        font-size="58" font-weight="900" fill="#FFFFFF"
-        stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" paint-order="stroke"
-        font-family="'PingFang SC','Hiragino Sans GB','Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif">蓝</text>
+  <!-- 仿小红书 App 图标:圆角方块 + 三字横排填满,红 #FF2442 → 蓝 #2442FF -->
+  <rect width="96" height="96" rx="21" fill="#2442FF"/>
+  <text x="48" y="51" text-anchor="middle" dominant-baseline="central"
+        font-size="29" font-weight="900" letter-spacing="1" fill="#FFFFFF"
+        font-family="'PingFang SC','Hiragino Sans GB','Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif">大蓝营</text>
 </svg>
