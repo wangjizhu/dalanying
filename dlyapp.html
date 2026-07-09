@@ -1,0 +1,1316 @@
+<title>大蓝营 · 散帅集中营</title>
+<style>
+  :root {
+    color-scheme: light;
+    --brand: #2442FF;
+    --brand-strong: #1E38D6;
+    --brand-soft: rgba(36, 66, 255, .08);
+    --brand-softer: rgba(36, 66, 255, .05);
+    --bg: #FFFFFF;
+    --card: #FFFFFF;
+    --line: #F0F1F5;
+    --text: #333336;
+    --text-2: #66686F;
+    --text-3: #9A9CA5;
+    --chip: #F5F6FA;
+    --chip-hover: #EDEFF5;
+    --overlay: rgba(15, 18, 30, .55);
+    --shadow: 0 8px 32px rgba(20, 30, 80, .14);
+    --toast-bg: #22242C;
+    --toast-text: #FFFFFF;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --brand: #5C74FF;
+      --brand-strong: #7B8DFF;
+      --brand-soft: rgba(92, 116, 255, .16);
+      --brand-softer: rgba(92, 116, 255, .09);
+      --bg: #101319;
+      --card: #1A1E27;
+      --line: #262B36;
+      --text: #E8EAF0;
+      --text-2: #A6ACBD;
+      --text-3: #767D8F;
+      --chip: #222734;
+      --chip-hover: #2A3040;
+      --overlay: rgba(4, 6, 12, .7);
+      --shadow: 0 8px 32px rgba(0, 0, 0, .5);
+      --toast-bg: #E8EAF0;
+      --toast-text: #16181F;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --brand: #5C74FF;
+    --brand-strong: #7B8DFF;
+    --brand-soft: rgba(92, 116, 255, .16);
+    --brand-softer: rgba(92, 116, 255, .09);
+    --bg: #101319;
+    --card: #1A1E27;
+    --line: #262B36;
+    --text: #E8EAF0;
+    --text-2: #A6ACBD;
+    --text-3: #767D8F;
+    --chip: #222734;
+    --chip-hover: #2A3040;
+    --overlay: rgba(4, 6, 12, .7);
+    --shadow: 0 8px 32px rgba(0, 0, 0, .5);
+    --toast-bg: #E8EAF0;
+    --toast-text: #16181F;
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --brand: #2442FF;
+    --brand-strong: #1E38D6;
+    --brand-soft: rgba(36, 66, 255, .08);
+    --brand-softer: rgba(36, 66, 255, .05);
+    --bg: #FFFFFF;
+    --card: #FFFFFF;
+    --line: #F0F1F5;
+    --text: #333336;
+    --text-2: #66686F;
+    --text-3: #9A9CA5;
+    --chip: #F5F6FA;
+    --chip-hover: #EDEFF5;
+    --overlay: rgba(15, 18, 30, .55);
+    --shadow: 0 8px 32px rgba(20, 30, 80, .14);
+    --toast-bg: #22242C;
+    --toast-text: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  body.no-scroll { overflow: hidden; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  input, textarea, select { font-family: inherit; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+  svg { display: block; }
+
+  /* ---------- 左侧边栏 ---------- */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 220px;
+    padding: 20px 16px;
+    border-right: 1px solid var(--line);
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 50;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 4px 8px 20px; }
+  .logo-box {
+    background: var(--brand);
+    color: #fff;
+    font-weight: 800;
+    font-size: 17px;
+    letter-spacing: 1px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .logo-sub { font-size: 11px; color: var(--text-3); letter-spacing: 2px; white-space: nowrap; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 999px;
+    font-size: 15px;
+    color: var(--text);
+    width: 100%;
+    text-align: left;
+    position: relative;
+    transition: background .15s;
+  }
+  .nav-item:hover { background: var(--chip); }
+  .nav-item.active { background: var(--brand-soft); color: var(--brand); font-weight: 700; }
+  .nav-item svg { width: 21px; height: 21px; flex: none; }
+  .nav-badge {
+    position: absolute;
+    left: 30px; top: 7px;
+    background: var(--brand);
+    color: #fff;
+    font-size: 10px;
+    line-height: 1;
+    padding: 3px 5px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+  .sidebar-foot {
+    margin-top: auto;
+    padding: 12px 8px 4px;
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: .5px;
+  }
+
+  /* ---------- 主区域 ---------- */
+  .main { margin-left: 220px; min-height: 100vh; }
+  .header-stick {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--bg);
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 12px 24px;
+    background: var(--bg);
+  }
+  .search-wrap {
+    flex: 1;
+    max-width: 520px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--chip);
+    border-radius: 999px;
+    padding: 9px 16px;
+    transition: background .15s;
+  }
+  .search-wrap:focus-within { background: var(--chip-hover); }
+  .search-wrap svg { width: 17px; height: 17px; color: var(--text-3); flex: none; }
+  .search-wrap input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+  }
+  .search-wrap input::placeholder { color: var(--text-3); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .btn-ghost {
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--text-2);
+    background: var(--chip);
+    transition: background .15s;
+  }
+  .btn-ghost:hover { background: var(--chip-hover); }
+  .topbar-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  /* ---------- 频道 tabs ---------- */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    padding: 6px 24px 12px;
+    background: var(--bg);
+    overflow-x: auto;
+    scrollbar-width: none;
+    justify-content: center;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    color: var(--text-2);
+    white-space: nowrap;
+    transition: background .15s, color .15s;
+  }
+  .tab:hover { background: var(--chip); color: var(--text); }
+  .tab.active { background: var(--brand-soft); color: var(--brand); font-weight: 700; }
+
+  /* ---------- 瀑布流 ---------- */
+  .feed {
+    padding: 8px 24px 48px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  @media (min-width: 1700px) { .feed { max-width: 1720px; } }
+  @media (max-width: 860px)  { .feed { gap: 10px; padding: 8px 12px 48px; } }
+  .feed-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .card { cursor: pointer; }
+  .cover {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #fff;
+  }
+  .cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #000;
+    opacity: 0;
+    transition: opacity .18s;
+  }
+  .card:hover .cover::after { opacity: .1; }
+  .cover-emoji { font-size: 52px; line-height: 1; filter: drop-shadow(0 4px 12px rgba(0,0,0,.25)); }
+  .cover-text {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(0,0,0,.35);
+    padding: 0 12px;
+    text-align: center;
+  }
+  .card-title {
+    margin: 9px 2px 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0 2px;
+    color: var(--text-3);
+    font-size: 12px;
+  }
+  .card-author { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .card-author .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--chip);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex: none;
+  }
+  .like-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-3);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    padding: 4px;
+    border-radius: 8px;
+  }
+  .like-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+  .like-btn.liked { color: var(--brand); }
+  .like-btn.liked svg { fill: var(--brand); stroke: var(--brand); }
+  .empty {
+    flex: 1;
+    text-align: center;
+    color: var(--text-3);
+    padding: 80px 0;
+    font-size: 14px;
+  }
+  .empty .empty-emoji { font-size: 44px; margin-bottom: 12px; }
+
+  /* ---------- 封面渐变 ---------- */
+  .g1  { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
+  .g2  { background: linear-gradient(135deg, #0e7490, #22d3ee); }
+  .g3  { background: linear-gradient(135deg, #312e81, #818cf8); }
+  .g4  { background: linear-gradient(135deg, #0f766e, #2dd4bf); }
+  .g5  { background: linear-gradient(135deg, #334155, #64748b); }
+  .g6  { background: linear-gradient(135deg, #1d4ed8, #60a5fa); }
+  .g7  { background: linear-gradient(160deg, #312e81 0%, #c2410c 65%, #fbbf24 100%); }
+  .g8  { background: linear-gradient(160deg, #0f172a, #1e1b4b 60%, #4338ca); }
+  .g9  { background: linear-gradient(135deg, #065f46, #34d399); }
+  .g10 { background: linear-gradient(135deg, #0369a1, #38bdf8); }
+  .g11 { background: linear-gradient(135deg, #b45309, #f59e0b); }
+
+  /* ---------- 弹窗通用 ---------- */
+  .modal-mask {
+    position: fixed;
+    inset: 0;
+    background: var(--overlay);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-mask.open { display: flex; }
+  .modal-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(0,0,0,.25);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+  }
+  .modal-close svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.2; }
+
+  /* ---------- 笔记详情 ---------- */
+  .post-modal {
+    position: relative;
+    width: min(940px, 96vw);
+    height: min(660px, 90vh);
+    background: var(--card);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    display: flex;
+    overflow: hidden;
+  }
+  .post-cover {
+    flex: 1.05;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: #fff;
+    min-width: 0;
+  }
+  .post-cover .cover-emoji { font-size: 96px; }
+  .post-cover .cover-text { font-size: 22px; letter-spacing: 2px; }
+  .post-panel {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .post-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .post-head .avatar { width: 38px; height: 38px; font-size: 20px; }
+  .post-head .who { flex: 1; min-width: 0; }
+  .post-head .who .name { font-size: 15px; font-weight: 600; }
+  .post-head .who .meta { font-size: 12px; color: var(--text-3); }
+  .btn-follow {
+    padding: 7px 20px;
+    border-radius: 999px;
+    background: var(--brand);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background .15s;
+  }
+  .btn-follow:hover { background: var(--brand-strong); }
+  .btn-follow.followed {
+    background: transparent;
+    color: var(--text-3);
+    box-shadow: inset 0 0 0 1px var(--line);
+    font-weight: 400;
+  }
+  .post-scroll { flex: 1; overflow-y: auto; padding: 18px 20px; }
+  .post-title { font-size: 17px; font-weight: 700; line-height: 1.5; margin: 0 0 10px; text-wrap: balance; }
+  .post-body { font-size: 14px; color: var(--text); white-space: pre-line; margin-bottom: 12px; }
+  .post-tags { margin-bottom: 10px; }
+  .post-tags span { color: var(--brand); margin-right: 8px; font-size: 14px; }
+  .post-date { font-size: 12px; color: var(--text-3); padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .comments-title { font-size: 13px; color: var(--text-3); margin: 14px 0 4px; }
+  .comment { display: flex; gap: 10px; padding: 10px 0; }
+  .comment .avatar { width: 30px; height: 30px; font-size: 15px; }
+  .comment .c-main { flex: 1; min-width: 0; }
+  .comment .c-name { font-size: 12px; color: var(--text-3); }
+  .comment .c-text { font-size: 14px; color: var(--text); }
+  .comment .c-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .post-foot {
+    border-top: 1px solid var(--line);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .comment-input {
+    flex: 1;
+    background: var(--chip);
+    border: none;
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    min-width: 0;
+  }
+  .comment-input::placeholder { color: var(--text-3); }
+  .foot-act {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-2);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    flex: none;
+  }
+  .foot-act svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+  .foot-act.on { color: var(--brand); }
+  .foot-act.on svg { fill: var(--brand); stroke: var(--brand); }
+  .btn-send {
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: var(--brand);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    flex: none;
+  }
+  .btn-send:hover { background: var(--brand-strong); }
+  @media (max-width: 760px) {
+    .post-modal { flex-direction: column; height: min(720px, 92vh); }
+    .post-cover { flex: none; height: 34%; }
+    .post-cover .cover-emoji { font-size: 56px; }
+    .post-cover .cover-text { font-size: 16px; }
+  }
+
+  /* ---------- 发布 / 通知 / 我 ---------- */
+  .panel-modal {
+    position: relative;
+    width: min(480px, 94vw);
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--card);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 24px;
+  }
+  .panel-modal h2 { margin: 0 0 16px; font-size: 18px; }
+  .panel-modal .modal-close { background: var(--chip); color: var(--text-2); }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--text-3); margin-bottom: 6px; }
+  .field input, .field textarea, .field select {
+    width: 100%;
+    background: var(--chip);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--brand); }
+  .field textarea { min-height: 110px; resize: vertical; }
+  .btn-primary {
+    width: 100%;
+    padding: 12px;
+    border-radius: 999px;
+    background: var(--brand);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .btn-primary:hover { background: var(--brand-strong); }
+  .notif-item { display: flex; gap: 12px; padding: 12px 2px; border-bottom: 1px solid var(--line); }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-item .avatar { width: 36px; height: 36px; font-size: 18px; }
+  .notif-item .n-text { font-size: 14px; }
+  .notif-item .n-meta { font-size: 12px; color: var(--text-3); }
+  .profile-top { text-align: center; padding: 8px 0 4px; }
+  .profile-avatar {
+    width: 76px; height: 76px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin-bottom: 8px;
+  }
+  .profile-name { font-size: 18px; font-weight: 700; }
+  .profile-id { font-size: 12px; color: var(--text-3); margin-bottom: 6px; }
+  .profile-bio { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+  .profile-stats { display: flex; justify-content: center; gap: 28px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .profile-stats .num { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .profile-stats .lbl { font-size: 12px; color: var(--text-3); }
+  .profile-chips { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; padding-top: 6px; }
+  .profile-chips span {
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 44px;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--toast-bg);
+    color: var(--toast-text);
+    padding: 11px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ---------- 响应式:窄屏侧栏 ---------- */
+  @media (max-width: 1000px) {
+    .sidebar { width: 64px; padding: 16px 8px; align-items: center; }
+    .logo { padding: 0 0 16px; }
+    .logo-box { font-size: 13px; padding: 6px 8px; letter-spacing: 0; }
+    .logo-sub, .nav-item .nav-text, .sidebar-foot { display: none; }
+    .nav-item { justify-content: center; padding: 12px; width: auto; }
+    .nav-badge { left: 26px; }
+    .main { margin-left: 64px; }
+    .tabs { justify-content: flex-start; }
+  }
+  @media (max-width: 560px) {
+    .sidebar {
+      top: auto; bottom: 0; left: 0; right: 0;
+      width: 100%;
+      flex-direction: row;
+      justify-content: space-around;
+      padding: 6px 8px;
+      border-right: none;
+      border-top: 1px solid var(--line);
+    }
+    .logo { display: none; }
+    .main { margin-left: 0; padding-bottom: 64px; }
+    .topbar { padding: 10px 12px; }
+    .topbar-right .btn-ghost { display: none; }
+    .tabs { padding: 4px 12px 10px; }
+    .search-wrap input, .comment-input, .field input, .field textarea, .field select { font-size: 16px; }
+  }
+  /* ---------- 登录/注册 ---------- */
+  .auth-error { color: #E5484D; font-size: 13px; min-height: 20px; margin-bottom: 6px; }
+  .auth-switch { text-align: center; font-size: 13px; color: var(--text-3); margin-top: 14px; }
+  .linklike { color: var(--brand); font-size: 13px; padding: 0 4px; }
+  .auth-seed {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--brand-softer);
+    color: var(--text-3);
+    font-size: 12px;
+    text-align: center;
+  }
+  .notif-empty { text-align: center; color: var(--text-3); padding: 28px 0; font-size: 13px; }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+<!-- ================= 侧边栏 ================= -->
+<nav class="sidebar" aria-label="主导航">
+  <div class="logo">
+    <span class="logo-box">大蓝营</span>
+    <span class="logo-sub">散帅集中营</span>
+  </div>
+  <button class="nav-item active" id="navHome">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M15.5 8.5l-2.2 5.3-5.3 2.2 2.2-5.3 5.3-2.2z" fill="currentColor" stroke="none"></path>
+    </svg>
+    <span class="nav-text">发现</span>
+  </button>
+  <button class="nav-item" id="navPublish">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+      <path d="M12 5v14M5 12h14" stroke-linecap="round"></path>
+    </svg>
+    <span class="nav-text">发布</span>
+  </button>
+  <button class="nav-item" id="navNotif">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+      <path d="M18 16v-5a6 6 0 1 0-12 0v5l-1.8 2.2h15.6L18 16z" stroke-linejoin="round"></path>
+      <path d="M10 20a2 2 0 0 0 4 0" stroke-linecap="round"></path>
+    </svg>
+    <span class="nav-text">通知</span>
+    <span class="nav-badge" id="notifBadge" style="display:none">0</span>
+  </button>
+  <button class="nav-item" id="navMe">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+      <circle cx="12" cy="8" r="4"></circle>
+      <path d="M4 20c0-3.3 3.6-5.5 8-5.5s8 2.2 8 5.5" stroke-linecap="round"></path>
+    </svg>
+    <span class="nav-text">我</span>
+  </button>
+  <div class="sidebar-foot">boys help boys 💙<br>帅气散入星河</div>
+</nav>
+
+<!-- ================= 主区域 ================= -->
+<main class="main">
+  <div class="header-stick">
+  <header class="topbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="10.5" cy="10.5" r="6.5"></circle>
+        <path d="M15.5 15.5L21 21" stroke-linecap="round"></path>
+      </svg>
+      <input id="searchInput" type="text" placeholder="搜索大蓝营,发现散帅生活" aria-label="搜索">
+    </div>
+    <div class="topbar-right">
+      <button class="btn-ghost" id="btnCreator">创作中心</button>
+      <button class="topbar-avatar" id="topAvatar" aria-label="我的主页">😎</button>
+    </div>
+  </header>
+
+  <div class="tabs" id="tabs" role="tablist" aria-label="频道"></div>
+  </div>
+
+  <section class="feed" id="feed" aria-live="polite"></section>
+</main>
+
+<!-- ================= 笔记详情弹窗 ================= -->
+<div class="modal-mask" id="postMask">
+  <div class="post-modal" role="dialog" aria-modal="true" aria-label="笔记详情">
+    <button class="modal-close" data-close aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"></path></svg>
+    </button>
+    <div class="post-cover" id="pmCover">
+      <span class="cover-emoji" id="pmEmoji"></span>
+      <span class="cover-text" id="pmCoverText"></span>
+    </div>
+    <div class="post-panel">
+      <div class="post-head">
+        <span class="avatar" id="pmAvatar"></span>
+        <div class="who">
+          <div class="name" id="pmAuthor"></div>
+          <div class="meta">散帅认证 · 蓝营常驻</div>
+        </div>
+        <button class="btn-follow" id="pmFollow">关注</button>
+      </div>
+      <div class="post-scroll">
+        <h3 class="post-title" id="pmTitle"></h3>
+        <div class="post-body" id="pmBody"></div>
+        <div class="post-tags" id="pmTags"></div>
+        <div class="post-date" id="pmDate"></div>
+        <div class="comments-title" id="pmCommentCount"></div>
+        <div id="pmComments"></div>
+      </div>
+      <div class="post-foot">
+        <input class="comment-input" id="pmInput" type="text" placeholder="说点好听的,兄弟…">
+        <button class="foot-act" id="pmLike" aria-label="点赞">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+          <span id="pmLikeCount">0</span>
+        </button>
+        <button class="foot-act" id="pmStar" aria-label="收藏">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+          <span id="pmStarCount">0</span>
+        </button>
+        <button class="foot-act" id="pmCmt" aria-label="查看评论">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3H4a2 2 0 0 0-2 2v16l4-4h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path></svg>
+          <span id="pmCmtCount">0</span>
+        </button>
+        <button class="btn-send" id="pmSend">发送</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 发布弹窗 ================= -->
+<div class="modal-mask" id="pubMask">
+  <div class="panel-modal" role="dialog" aria-modal="true" aria-label="发布笔记">
+    <button class="modal-close" data-close aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"></path></svg>
+    </button>
+    <h2>发布笔记 📝</h2>
+    <div class="field">
+      <label for="pubTitle">标题(好标题是散入星河的第一步)</label>
+      <input id="pubTitle" type="text" maxlength="40" placeholder="例:三个月卧推100kg,细节全在这了">
+    </div>
+    <div class="field">
+      <label for="pubBody">正文</label>
+      <textarea id="pubBody" placeholder="分享你的散帅日常,兄弟们都看着呢…"></textarea>
+    </div>
+    <div class="field">
+      <label for="pubCat">频道</label>
+      <select id="pubCat">
+        <option value="brother">兄弟树洞</option>
+        <option value="fitness">健身</option>
+        <option value="digital">数码</option>
+        <option value="game">游戏</option>
+        <option value="fashion">穿搭</option>
+        <option value="money">搞钱</option>
+        <option value="food">美食</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="pubEmoji">封面表情(选填,一个 emoji)</label>
+      <input id="pubEmoji" type="text" maxlength="8" placeholder="📝">
+    </div>
+    <button class="btn-primary" id="pubSubmit">发布笔记</button>
+  </div>
+</div>
+
+<!-- ================= 通知弹窗 ================= -->
+<div class="modal-mask" id="notifMask">
+  <div class="panel-modal" role="dialog" aria-modal="true" aria-label="通知">
+    <button class="modal-close" data-close aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"></path></svg>
+    </button>
+    <h2>通知 🔔</h2>
+    <div id="notifList"></div>
+  </div>
+</div>
+
+<!-- ================= 我的主页弹窗 ================= -->
+<div class="modal-mask" id="meMask">
+  <div class="panel-modal" role="dialog" aria-modal="true" aria-label="我的主页">
+    <button class="modal-close" data-close aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"></path></svg>
+    </button>
+    <div class="profile-top">
+      <div class="profile-avatar" id="pfAvatar">👤</div>
+      <div class="profile-name" id="pfName">未登录</div>
+      <div class="profile-id" id="pfId">登录后开启散帅身份</div>
+      <div class="profile-bio" id="pfBio">大蓝营 · 散帅集中营 · boys help boys</div>
+    </div>
+    <div class="profile-stats">
+      <div><div class="num" id="pfFollowing">-</div><div class="lbl">关注</div></div>
+      <div><div class="num" id="pfFans">-</div><div class="lbl">粉丝</div></div>
+      <div><div class="num" id="pfPraise">-</div><div class="lbl">获赞与收藏</div></div>
+    </div>
+    <div class="profile-chips">
+      <span>经济独立</span><span>心态乐观</span><span>boys help boys</span><span>八三散帅节</span>
+    </div>
+    <button class="btn-primary" id="pfAction" style="margin-top:16px">登录 / 注册</button>
+  </div>
+</div>
+
+<!-- ================= 登录/注册弹窗 ================= -->
+<div class="modal-mask" id="authMask">
+  <div class="panel-modal" role="dialog" aria-modal="true" aria-label="登录或注册">
+    <button class="modal-close" data-close aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"></path></svg>
+    </button>
+    <h2 id="authTitle">登录大蓝营 💙</h2>
+    <div class="field">
+      <label for="authUser">用户名</label>
+      <input id="authUser" type="text" maxlength="20" placeholder="2-20 个字符" autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="authPass">密码</label>
+      <input id="authPass" type="password" maxlength="64" placeholder="至少 6 位" autocomplete="current-password">
+    </div>
+    <div class="field" id="authAvatarField" style="display:none">
+      <label for="authAvatar">头像表情(选填,一个 emoji)</label>
+      <input id="authAvatar" type="text" maxlength="8" placeholder="😎">
+    </div>
+    <div class="auth-error" id="authError"></div>
+    <button class="btn-primary" id="authSubmit">登 录</button>
+    <div class="auth-switch"><span id="authHint">还没有账号?</span><button class="linklike" id="authToggle">注册一个</button></div>
+    <div class="auth-seed">元老账号(铁块搬运工 / 蓝营指导员 / 干饭大王…)密码统一:sanshuai</div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+<script>
+"use strict";
+
+/* ================= 常量 ================= */
+const CATS = { 兄弟树洞: "brother", 健身: "fitness", 数码: "digital", 游戏: "game", 穿搭: "fashion", 搞钱: "money", 美食: "food" };
+const TABS = ["推荐", "兄弟树洞", "健身", "数码", "游戏", "穿搭", "搞钱", "美食"];
+const CAT_NAME = { brother: "兄弟树洞", fitness: "健身", digital: "数码", game: "游戏", fashion: "穿搭", money: "搞钱", food: "美食" };
+
+/* ================= 状态 ================= */
+let ME = null;            // 当前登录用户 {id, name, avatar, bio, stats}
+let ALL = [];             // 服务器返回的笔记列表
+let activeTab = "推荐";
+let query = "";
+let currentPost = null;   // 详情弹窗当前笔记(含 body/tags/comments/followed)
+let authMode = "login";
+
+const $ = (id) => document.getElementById(id);
+const feedEl = $("feed");
+const tabsEl = $("tabs");
+
+/* ================= 工具 ================= */
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function fmt(n) {
+  if (n >= 10000) {
+    const v = (n / 10000).toFixed(1);
+    return (v.endsWith(".0") ? v.slice(0, -2) : v) + "万";
+  }
+  return String(n);
+}
+function graphemes(s) {
+  if (typeof Intl !== "undefined" && Intl.Segmenter) {
+    return Array.from(new Intl.Segmenter("zh", { granularity: "grapheme" }).segment(s), (x) => x.segment);
+  }
+  return [...s];
+}
+let toastTimer = null;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+/* ================= API ================= */
+async function api(path, method, body) {
+  const opts = { method: method || "GET", headers: {} };
+  if (body !== undefined) {
+    opts.headers["Content-Type"] = "application/json";
+    opts.body = JSON.stringify(body);
+  }
+  let r;
+  try { r = await fetch(path, opts); }
+  catch (e) { throw new Error("网络不给力,稍后再试"); }
+  let data = {};
+  try { data = await r.json(); } catch (e) { /* 空响应 */ }
+  if (!r.ok) {
+    const err = new Error(data.error || "请求失败(" + r.status + ")");
+    err.status = r.status;
+    throw err;
+  }
+  return data;
+}
+function isAuthErr(e) {
+  if (e && e.status === 401) { openAuth("login"); toast("请先登录,散帅"); return true; }
+  return false;
+}
+
+/* ================= 登录 / 注册 ================= */
+function openAuth(mode) {
+  authMode = mode || "login";
+  syncAuthUI();
+  openMask("authMask");
+  $("authUser").focus();
+}
+function syncAuthUI() {
+  const login = authMode === "login";
+  $("authTitle").textContent = login ? "登录大蓝营 💙" : "注册散帅账号 ✨";
+  $("authSubmit").textContent = login ? "登 录" : "注 册";
+  $("authAvatarField").style.display = login ? "none" : "block";
+  $("authHint").textContent = login ? "还没有账号?" : "已有账号?";
+  $("authToggle").textContent = login ? "注册一个" : "去登录";
+  $("authError").textContent = "";
+}
+async function submitAuth() {
+  const username = $("authUser").value.trim();
+  const password = $("authPass").value;
+  if (!username || !password) { $("authError").textContent = "用户名和密码都要填"; return; }
+  const payload = { username, password };
+  if (authMode === "register") {
+    const av = graphemes($("authAvatar").value.trim())[0];
+    if (av) payload.avatar = av;
+  }
+  const btn = $("authSubmit");
+  btn.disabled = true;
+  try {
+    const d = await api("/api/auth/" + authMode, "POST", payload);
+    ME = d.user;
+    $("authPass").value = "";
+    closeMasks();
+    updateMeUI();
+    await refreshPosts();
+    renderFeed();
+    refreshBadge();
+    toast(authMode === "login" ? "欢迎回来," + ME.name + " 💙" : "注册成功,欢迎入营," + ME.name + " 💙");
+  } catch (e) {
+    $("authError").textContent = e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ================= 我 / 会话 ================= */
+async function loadMe() {
+  try { ME = (await api("/api/me")).user; } catch (e) { ME = null; }
+  updateMeUI();
+}
+function updateMeUI() {
+  $("topAvatar").textContent = ME ? ME.avatar : "👤";
+  if (ME) {
+    $("pfAvatar").textContent = ME.avatar;
+    $("pfName").textContent = ME.name;
+    $("pfId").textContent = "蓝营号:" + ME.id + " · IP属地:蓝营";
+    $("pfBio").textContent = ME.bio || "阳光 · 乐观 · 独立|帅气散入星河";
+    $("pfFollowing").textContent = fmt(ME.stats.following);
+    $("pfFans").textContent = fmt(ME.stats.followers);
+    $("pfPraise").textContent = fmt(ME.stats.praise);
+    $("pfAction").textContent = "退出登录";
+  } else {
+    $("pfAvatar").textContent = "👤";
+    $("pfName").textContent = "未登录";
+    $("pfId").textContent = "登录后开启散帅身份";
+    $("pfBio").textContent = "大蓝营 · 散帅集中营 · boys help boys";
+    $("pfFollowing").textContent = "-";
+    $("pfFans").textContent = "-";
+    $("pfPraise").textContent = "-";
+    $("pfAction").textContent = "登录 / 注册";
+    $("notifBadge").style.display = "none";
+  }
+}
+async function refreshBadge() {
+  if (!ME) return;
+  try {
+    const d = await api("/api/notifications");
+    if (d.items.length) {
+      $("notifBadge").textContent = Math.min(d.items.length, 99);
+      $("notifBadge").style.display = "";
+    } else {
+      $("notifBadge").style.display = "none";
+    }
+  } catch (e) { /* 静默 */ }
+}
+
+/* ================= Tabs ================= */
+function renderTabs() {
+  tabsEl.innerHTML = TABS.map((t) =>
+    `<button class="tab${t === activeTab ? " active" : ""}" role="tab" aria-selected="${t === activeTab}" data-tab="${t}">${t}</button>`
+  ).join("");
+}
+tabsEl.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-tab]");
+  if (!btn) return;
+  activeTab = btn.dataset.tab;
+  renderTabs();
+  renderFeed();
+});
+
+/* ================= 瀑布流 ================= */
+async function refreshPosts() {
+  ALL = (await api("/api/posts")).posts;
+}
+function visiblePosts() {
+  let list = ALL;
+  if (activeTab !== "推荐") {
+    const cat = CATS[activeTab];
+    list = list.filter((p) => p.cat === cat);
+  }
+  if (query) {
+    const q = query.toLowerCase();
+    list = list.filter((p) =>
+      [p.title, p.author.name, p.coverText].join("\n").toLowerCase().includes(q)
+    );
+  }
+  return list;
+}
+function cardHTML(p) {
+  return `
+    <article class="card" data-id="${p.id}">
+      <div class="cover ${p.g}" style="aspect-ratio:${p.ratio}">
+        <span class="cover-emoji">${esc(p.emoji)}</span>
+        <span class="cover-text">${esc(p.coverText)}</span>
+      </div>
+      <div class="card-title">${esc(p.title)}</div>
+      <div class="card-foot">
+        <span class="card-author"><span class="avatar">${esc(p.author.avatar)}</span><span class="name">${esc(p.author.name)}</span></span>
+        <button class="like-btn${p.liked ? " liked" : ""}" data-like="${p.id}" aria-label="点赞">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+          <span>${fmt(p.likes)}</span>
+        </button>
+      </div>
+    </article>
+  `;
+}
+function colCount() {
+  const w = window.innerWidth;
+  if (w >= 1700) return 5;
+  if (w > 1250) return 4;
+  if (w > 860) return 3;
+  return 2;
+}
+let lastCols = 0;
+function renderFeed() {
+  const list = visiblePosts();
+  lastCols = colCount();
+  if (!list.length) {
+    feedEl.innerHTML = `<div class="empty"><div class="empty-emoji">🫥</div>没有找到相关笔记,换个关键词试试?<br>或者点「发布」,第一篇让你来写</div>`;
+    return;
+  }
+  const cols = Array.from({ length: lastCols }, () => ({ h: 0, html: "" }));
+  for (const p of list) {
+    const target = cols.reduce((a, b) => (b.h < a.h ? b : a));
+    const [rw, rh] = p.ratio.split("/").map(Number);
+    target.h += rh / rw + 0.35;
+    target.html += cardHTML(p);
+  }
+  feedEl.innerHTML = cols.map((c) => `<div class="feed-col">${c.html}</div>`).join("");
+}
+let resizeTimer = null;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { if (colCount() !== lastCols) renderFeed(); }, 150);
+});
+feedEl.addEventListener("click", (e) => {
+  const likeBtn = e.target.closest("[data-like]");
+  if (likeBtn) { toggleLike(Number(likeBtn.dataset.like)); return; }
+  const card = e.target.closest(".card[data-id]");
+  if (card) openPost(Number(card.dataset.id));
+});
+
+/* ================= 点赞 / 收藏 ================= */
+function syncCardLike(p) {
+  const btn = feedEl.querySelector(`[data-like="${p.id}"]`);
+  if (btn) {
+    btn.classList.toggle("liked", p.liked);
+    btn.querySelector("span").textContent = fmt(p.likes);
+  }
+}
+function syncModalActs(p) {
+  $("pmLike").classList.toggle("on", p.liked);
+  $("pmStar").classList.toggle("on", p.starred);
+  $("pmLikeCount").textContent = fmt(p.likes);
+  $("pmStarCount").textContent = fmt(p.stars);
+}
+async function toggleLike(id) {
+  if (!ME) return openAuth("login");
+  const p = ALL.find((x) => x.id === id) || (currentPost && currentPost.id === id ? currentPost : null);
+  if (!p) return;
+  const apply = (liked, likes) => {
+    const item = ALL.find((x) => x.id === id);
+    if (item) { item.liked = liked; item.likes = likes; syncCardLike(item); }
+    if (currentPost && currentPost.id === id) { currentPost.liked = liked; currentPost.likes = likes; syncModalActs(currentPost); }
+  };
+  apply(!p.liked, p.likes + (p.liked ? -1 : 1)); // 乐观更新
+  try {
+    const d = await api("/api/posts/" + id + "/like", "POST", {});
+    apply(d.liked, d.likes);
+    if (d.liked) toast("已点赞,散帅眼光不错 💙");
+  } catch (e) {
+    apply(p.liked, p.likes); // 回滚
+    if (!isAuthErr(e)) toast(e.message);
+  }
+}
+$("pmLike").addEventListener("click", () => { if (currentPost) toggleLike(currentPost.id); });
+$("pmStar").addEventListener("click", async () => {
+  if (!currentPost) return;
+  if (!ME) return openAuth("login");
+  try {
+    const d = await api("/api/posts/" + currentPost.id + "/star", "POST", {});
+    currentPost.starred = d.starred;
+    currentPost.stars = d.stars;
+    const item = ALL.find((x) => x.id === currentPost.id);
+    if (item) { item.starred = d.starred; item.stars = d.stars; }
+    syncModalActs(currentPost);
+    if (d.starred) toast("已收藏,记进你的小蓝书 📘");
+  } catch (e) { if (!isAuthErr(e)) toast(e.message); }
+});
+
+/* ================= 搜索 ================= */
+$("searchInput").addEventListener("input", (e) => {
+  query = e.target.value.trim();
+  renderFeed();
+});
+
+/* ================= 弹窗开关 ================= */
+function openMask(id) {
+  $(id).classList.add("open");
+  document.body.classList.add("no-scroll");
+}
+function closeMasks() {
+  document.querySelectorAll(".modal-mask.open").forEach((m) => m.classList.remove("open"));
+  document.body.classList.remove("no-scroll");
+  currentPost = null;
+}
+document.querySelectorAll(".modal-mask").forEach((mask) => {
+  let downOnMask = false;
+  mask.addEventListener("mousedown", (e) => { downOnMask = e.target === mask; });
+  mask.addEventListener("click", (e) => {
+    if (e.target.closest("[data-close]")) { closeMasks(); return; }
+    if (e.target === mask && downOnMask) closeMasks();
+    downOnMask = false;
+  });
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !e.isComposing && e.keyCode !== 229) closeMasks();
+});
+
+/* ================= 笔记详情 ================= */
+function setFollowUI(followed) {
+  const b = $("pmFollow");
+  b.textContent = followed ? "已关注" : "关注";
+  b.classList.toggle("followed", followed);
+}
+function renderComments(p) {
+  $("pmCommentCount").textContent = "共 " + p.comments.length + " 条评论";
+  $("pmCmtCount").textContent = p.comments.length;
+  $("pmComments").innerHTML = p.comments.length ? p.comments.map((c) => `
+    <div class="comment">
+      <span class="avatar">${esc(c.avatar)}</span>
+      <div class="c-main">
+        <div class="c-name">${esc(c.name)}</div>
+        <div class="c-text">${esc(c.text)}</div>
+        <div class="c-meta">${esc(c.date)} · 回复</div>
+      </div>
+    </div>
+  `).join("") : `<div class="comments-title" style="text-align:center;padding:14px 0">还没有评论,来抢沙发 🛋️</div>`;
+}
+async function openPost(id) {
+  let p;
+  try { p = (await api("/api/posts/" + id)).post; }
+  catch (e) { toast(e.message); return; }
+  currentPost = p;
+  const cover = $("pmCover");
+  cover.className = "post-cover " + p.g;
+  $("pmEmoji").textContent = p.emoji;
+  $("pmCoverText").textContent = p.coverText;
+  $("pmAvatar").textContent = p.author.avatar;
+  $("pmAuthor").textContent = p.author.name;
+  $("pmTitle").textContent = p.title;
+  $("pmBody").textContent = p.body;
+  $("pmTags").innerHTML = p.tags.map((t) => `<span># ${esc(t)}</span>`).join("");
+  $("pmDate").textContent = "编辑于 " + p.date + " · IP属地:蓝营 · " + (CAT_NAME[p.cat] || "推荐");
+  const fBtn = $("pmFollow");
+  if (ME && ME.id === p.author.id) { fBtn.style.display = "none"; }
+  else { fBtn.style.display = ""; setFollowUI(p.followed); }
+  syncModalActs(p);
+  renderComments(p);
+  $("pmInput").value = "";
+  openMask("postMask");
+  document.querySelector(".post-scroll").scrollTop = 0;
+}
+$("pmFollow").addEventListener("click", async () => {
+  if (!currentPost) return;
+  if (!ME) return openAuth("login");
+  try {
+    const d = await api("/api/users/" + currentPost.author.id + "/follow", "POST", {});
+    currentPost.followed = d.followed;
+    setFollowUI(d.followed);
+    toast(d.followed ? "已关注 " + currentPost.author.name + ",兄弟常来 🤝" : "已取消关注");
+  } catch (e) { if (!isAuthErr(e)) toast(e.message); }
+});
+$("pmCmt").addEventListener("click", () => {
+  $("pmCommentCount").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("pmInput").focus();
+});
+async function sendComment() {
+  if (!currentPost) return;
+  if (!ME) return openAuth("login");
+  const input = $("pmInput");
+  const text = input.value.trim();
+  if (!text) { toast("说点什么再发,兄弟"); return; }
+  try {
+    const d = await api("/api/posts/" + currentPost.id + "/comments", "POST", { text });
+    currentPost.comments.push(d.comment);
+    input.value = "";
+    renderComments(currentPost);
+    const item = ALL.find((x) => x.id === currentPost.id);
+    if (item) item.commentCount += 1;
+    const scroll = document.querySelector(".post-scroll");
+    scroll.scrollTop = scroll.scrollHeight;
+    toast("评论成功 💙");
+  } catch (e) { if (!isAuthErr(e)) toast(e.message); }
+}
+$("pmSend").addEventListener("click", sendComment);
+$("pmInput").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing) sendComment(); });
+
+/* ================= 发布 ================= */
+$("pubSubmit").addEventListener("click", async () => {
+  if (!ME) return openAuth("login");
+  const title = $("pubTitle").value.trim();
+  const body = $("pubBody").value.trim();
+  if (!title) { toast("标题不能为空,散帅要有排面"); return; }
+  try {
+    const d = await api("/api/posts", "POST", {
+      title, body,
+      cat: $("pubCat").value,
+      emoji: graphemes($("pubEmoji").value.trim())[0] || "📝"
+    });
+    ALL.unshift(d.post);
+    $("pubTitle").value = ""; $("pubBody").value = ""; $("pubEmoji").value = "";
+    closeMasks();
+    activeTab = "推荐";
+    query = "";
+    $("searchInput").value = "";
+    renderTabs();
+    renderFeed();
+    toast("发布成功,散帅们看得到你 💙");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (e) { if (!isAuthErr(e)) toast(e.message); }
+});
+
+/* ================= 通知 ================= */
+$("navNotif").addEventListener("click", async () => {
+  if (!ME) return openAuth("login");
+  openMask("notifMask");
+  $("notifList").innerHTML = `<div class="notif-empty">加载中…</div>`;
+  try {
+    const d = await api("/api/notifications");
+    $("notifBadge").style.display = "none";
+    if (!d.items.length) {
+      $("notifList").innerHTML = `<div class="notif-empty">还没有通知,先去发一篇笔记攒人气 💙</div>`;
+      return;
+    }
+    $("notifList").innerHTML = d.items.map((n) => {
+      const act = n.type === "like" ? "赞了你的笔记" : n.type === "comment" ? "评论了你" : "关注了你";
+      const detail = n.type === "comment" ? ":" + esc(n.extra) : (n.title ? "《" + esc(n.title) + "》" : "");
+      return `<div class="notif-item"><span class="avatar">${esc(n.avatar)}</span><div><div class="n-text"><b>${esc(n.name)}</b> ${act}${detail}</div><div class="n-meta">${esc(n.date)}</div></div></div>`;
+    }).join("");
+  } catch (e) {
+    $("notifList").innerHTML = "";
+    if (!isAuthErr(e)) toast(e.message);
+  }
+});
+
+/* ================= 侧边栏 / 其他 ================= */
+$("navHome").addEventListener("click", async () => {
+  activeTab = "推荐";
+  query = "";
+  $("searchInput").value = "";
+  try { await refreshPosts(); } catch (e) { /* 保留旧数据 */ }
+  renderTabs();
+  renderFeed();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+$("navPublish").addEventListener("click", () => { ME ? openMask("pubMask") : openAuth("login"); });
+$("navMe").addEventListener("click", () => openMask("meMask"));
+$("topAvatar").addEventListener("click", () => { ME ? openMask("meMask") : openAuth("login"); });
+$("btnCreator").addEventListener("click", () => toast("散帅创作中心装修中,敬请期待 🚧"));
+$("pfAction").addEventListener("click", async () => {
+  if (!ME) { closeMasks(); openAuth("login"); return; }
+  try { await api("/api/auth/logout", "POST", {}); } catch (e) { /* 忽略 */ }
+  ME = null;
+  closeMasks();
+  updateMeUI();
+  try { await refreshPosts(); renderFeed(); } catch (e) { /* 忽略 */ }
+  toast("已退出,江湖再见 👋");
+});
+$("authSubmit").addEventListener("click", submitAuth);
+$("authToggle").addEventListener("click", () => { authMode = authMode === "login" ? "register" : "login"; syncAuthUI(); });
+$("authPass").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing) submitAuth(); });
+
+/* ================= 启动 ================= */
+renderTabs();
+(async () => {
+  await loadMe();
+  try {
+    await refreshPosts();
+    renderFeed();
+  } catch (e) {
+    feedEl.innerHTML = `<div class="empty"><div class="empty-emoji">📡</div>加载失败:${esc(e.message)}<br>刷新页面重试一下</div>`;
+    return;
+  }
+  refreshBadge();
+})();
+</script>
