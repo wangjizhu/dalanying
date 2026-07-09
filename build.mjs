@@ -105,7 +105,7 @@ try { new Function(combined); } catch (e) { console.error('BUILD FAIL: JS syntax
 
 /* ---------- 8. 输出:片段 + 完整文档 ---------- */
 fs.writeFileSync('dlyapp.html', s);
-const full = '<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+const full = '<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<link rel="icon" type="image/svg+xml" href="/favicon.svg">\n'
   + s.slice(0, s.indexOf('</style>') + 8) + '\n</head>\n<body>\n' + s.slice(s.indexOf('</style>') + 8) + '\n</body>\n</html>\n';
 fs.writeFileSync('index.html', full);
 console.log('BUILD OK → dlyapp.html (' + s.length + ' chars), index.html (' + full.length + ' chars)');

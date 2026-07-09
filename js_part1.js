@@ -139,12 +139,18 @@ function updateMeUI() {
     $("notifBadge").style.display = "none";
   }
 }
+function notifSeenKey() {
+  return "dly_notif_seen_" + (ME ? ME.id : "anon");
+}
 async function refreshBadge() {
   if (!ME) return;
   try {
     const d = await api("/api/notifications");
-    if (d.items.length) {
-      $("notifBadge").textContent = Math.min(d.items.length, 99);
+    let seen = "";
+    try { seen = localStorage.getItem(notifSeenKey()) || ""; } catch (e) { /* 隐私模式 */ }
+    const unread = d.items.filter((n) => n.date > seen).length; // 日期是 YYYY-MM-DD HH:MM,可直接字典序比较
+    if (unread) {
+      $("notifBadge").textContent = Math.min(unread, 99);
       $("notifBadge").style.display = "";
     } else {
       $("notifBadge").style.display = "none";

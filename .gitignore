@@ -5,3 +5,5 @@ dalanying.db-wal
 dalanying.db-shm
 served.html
 node_modules/
+.claude/
+e2e.jar

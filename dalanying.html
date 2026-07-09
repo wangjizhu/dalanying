@@ -110,18 +110,21 @@
     gap: 4px;
     z-index: 50;
   }
-  .logo { display: flex; align-items: center; gap: 10px; padding: 4px 8px 20px; }
+  .logo { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; padding: 4px 8px 20px; }
   .logo-box {
     background: var(--brand);
     color: #fff;
-    font-weight: 800;
-    font-size: 17px;
-    letter-spacing: 1px;
-    padding: 6px 12px;
-    border-radius: 10px;
+    font-weight: 900;
+    font-size: 21px;
+    letter-spacing: 3px;
+    padding: 8px 16px 9px;
+    border-radius: 14px;
     white-space: nowrap;
+    -webkit-text-stroke: .5px #fff; /* 加粗笔画,贴近官方字标的厚重圆润感 */
+    font-family: "PingFang SC", "Hiragino Sans GB", "Source Han Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    box-shadow: 0 2px 12px var(--brand-soft);
   }
-  .logo-sub { font-size: 11px; color: var(--text-3); letter-spacing: 2px; white-space: nowrap; }
+  .logo-sub { font-size: 11px; color: var(--text-3); letter-spacing: 5px; white-space: nowrap; padding-left: 2px; }
   .nav-item {
     display: flex;
     align-items: center;

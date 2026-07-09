@@ -15,7 +15,6 @@ import secrets
 import time
 import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from http.cookies import SimpleCookie
 from urllib.parse import urlparse
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -98,6 +97,18 @@ def now():
 def hash_pw(pw, salt_hex):
     return hashlib.scrypt(pw.encode('utf-8'), salt=bytes.fromhex(salt_hex),
                           n=16384, r=8, p=1, dklen=64).hex()
+
+
+# 登录时用户名不存在也跑一次哑 scrypt,耗时对齐,防用户名枚举计时侧信道
+DUMMY_SALT = secrets.token_hex(16)
+
+
+def clip(s, n):
+    """按码点截断,并去掉结尾悬空的 ZWJ/变体选择符/肤色修饰符,避免拆碎组合 emoji。"""
+    t = s[:n]
+    while t and (ord(t[-1]) in (0x200D, 0xFE0F) or 0x1F3FB <= ord(t[-1]) <= 0x1F3FF):
+        t = t[:-1]
+    return t
 
 
 def create_user(conn, username, password, avatar, bio=''):
@@ -187,6 +198,7 @@ def user_dict(conn, u):
 class Handler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
     server_version = 'Dalanying/2'
+    timeout = 30  # 阻塞读/空闲 keep-alive 连接 30 秒自动释放线程
 
     def log_message(self, fmt, *args):
         pass  # 交给 systemd journal 的只留异常
@@ -206,22 +218,42 @@ class Handler(BaseHTTPRequestHandler):
     def fail(self, msg, status=400):
         self.send_json({'error': msg}, status)
 
-    def read_json(self):
+    def drain_body(self):
+        """keep-alive 安全:无论路由是否需要,先把请求体完整读掉,
+        防止残留字节被当作下一个请求解析(连接失步)。"""
+        self._body = b''
+        if self.headers.get('Transfer-Encoding'):
+            self.close_connection = True
+            return
         try:
             n = int(self.headers.get('Content-Length') or 0)
         except ValueError:
-            return None
-        if n <= 0 or n > 200000:
+            self.close_connection = True
+            return
+        if n <= 0:
+            return
+        if n > 200000:
+            self.close_connection = True
+            return
+        self._body = self.rfile.read(n)
+
+    def read_json(self):
+        body = getattr(self, '_body', b'')
+        if not body:
             return None
         try:
-            data = json.loads(self.rfile.read(n).decode('utf-8'))
+            data = json.loads(body.decode('utf-8'))
             return data if isinstance(data, dict) else None
         except Exception:
             return None
 
     def get_sid(self):
-        c = SimpleCookie(self.headers.get('Cookie') or '')
-        return c['sid'].value if 'sid' in c else None
+        # 手工逐段解析:任何一个脏 cookie 都不该连累 sid(SimpleCookie 遇错会整串放弃)
+        for part in (self.headers.get('Cookie') or '').split(';'):
+            k, _, v = part.strip().partition('=')
+            if k == 'sid':
+                return v
+        return None
 
     def current_user(self, conn):
         sid = self.get_sid()
@@ -271,6 +303,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         try:
+            self.drain_body()
             self.route_post()
         except Exception:
             traceback.print_exc()
@@ -281,9 +314,23 @@ class Handler(BaseHTTPRequestHandler):
         if path in ('/', '/index.html'):
             return self.serve_index()
         if path == '/favicon.ico':
-            self.send_response(204)
+            # 204 不允许带 Content-Length(RFC 9110),改用空 404
+            self.send_response(404)
             self.send_header('Content-Length', '0')
             self.end_headers()
+            return
+        if path in ('/favicon.svg', '/logo.svg'):
+            try:
+                with open(os.path.join(BASE, path.lstrip('/')), 'rb') as f:
+                    body = f.read()
+            except OSError:
+                return self.fail('资源不存在', 404)
+            self.send_response(200)
+            self.send_header('Content-Type', 'image/svg+xml')
+            self.send_header('Content-Length', str(len(body)))
+            self.send_header('Cache-Control', 'max-age=86400')
+            self.end_headers()
+            self.wfile.write(body)
             return
         conn = db()
         try:
@@ -353,7 +400,11 @@ ORDER BY t DESC LIMIT 30''', {'me': mid}).fetchall()
                     return self.fail('密码要 6-64 位')
                 if conn.execute('SELECT 1 FROM users WHERE username=?', (username,)).fetchone():
                     return self.fail('这个名字已经被别的散帅占了,换一个')
-                uid = create_user(conn, username, password, avatar[:8])
+                try:
+                    uid = create_user(conn, username, password, clip(avatar, 8))
+                except sqlite3.IntegrityError:
+                    # 并发注册同名:第二个请求友好提示而不是 500
+                    return self.fail('这个名字已经被别的散帅占了,换一个')
                 cookie = self.make_session_cookie(conn, uid)
                 conn.commit()
                 u = conn.execute('SELECT * FROM users WHERE id=?', (uid,)).fetchone()
@@ -366,7 +417,10 @@ ORDER BY t DESC LIMIT 30''', {'me': mid}).fetchall()
                 username = str(data.get('username') or '').strip()
                 password = str(data.get('password') or '')
                 u = conn.execute('SELECT * FROM users WHERE username=?', (username,)).fetchone()
-                if not u or not hmac.compare_digest(hash_pw(password, u['salt']), u['pw']):
+                if not u:
+                    hash_pw(password, DUMMY_SALT)  # 耗时对齐
+                    return self.fail('用户名或密码不对', 401)
+                if not hmac.compare_digest(hash_pw(password, u['salt']), u['pw']):
                     return self.fail('用户名或密码不对', 401)
                 conn.execute('DELETE FROM sessions WHERE expires < ?', (time.time(),))
                 cookie = self.make_session_cookie(conn, u['id'])
@@ -394,7 +448,7 @@ ORDER BY t DESC LIMIT 30''', {'me': mid}).fetchall()
                 title = str(data.get('title') or '').strip()
                 body = str(data.get('body') or '').strip()
                 cat = str(data.get('cat') or '')
-                emoji = str(data.get('emoji') or '📝').strip()[:8] or '📝'
+                emoji = clip(str(data.get('emoji') or '📝').strip(), 8) or '📝'
                 if not (1 <= len(title) <= 40):
                     return self.fail('标题要 1-40 个字')
                 if len(body) > 5000:
@@ -406,7 +460,7 @@ ORDER BY t DESC LIMIT 30''', {'me': mid}).fetchall()
                 cur = conn.execute(
                     'INSERT INTO posts(user_id, cat, g, ratio, emoji, cover_text, title, body,'
                     ' tags, created_at) VALUES(?,?,?,?,?,?,?,?,?,?)',
-                    (mid, cat, secrets.choice(GRADS), '3/4', emoji, title[:10], title, body,
+                    (mid, cat, secrets.choice(GRADS), '3/4', emoji, clip(title, 10), title, body,
                      json.dumps([{'brother': '兄弟树洞', 'fitness': '健身', 'digital': '数码',
                                   'game': '游戏', 'fashion': '穿搭', 'money': '搞钱',
                                   'food': '美食'}[cat], '散帅日常'], ensure_ascii=False), now()))
@@ -423,12 +477,11 @@ ORDER BY t DESC LIMIT 30''', {'me': mid}).fetchall()
                 if action in ('like', 'star'):
                     table = 'likes' if action == 'like' else 'stars'
                     base = 'base_likes' if action == 'like' else 'base_stars'
-                    on = conn.execute('SELECT 1 FROM %s WHERE user_id=? AND post_id=?' % table,
-                                      (mid, pid)).fetchone()
-                    if on:
-                        conn.execute('DELETE FROM %s WHERE user_id=? AND post_id=?' % table, (mid, pid))
-                    else:
-                        conn.execute('INSERT INTO %s(user_id, post_id, created_at) VALUES(?,?,?)' % table,
+                    # 原子切换:先删,没删到再插;INSERT OR IGNORE 兜住并发双击,不会撞主键 500
+                    cur = conn.execute('DELETE FROM %s WHERE user_id=? AND post_id=?' % table, (mid, pid))
+                    turned_on = cur.rowcount == 0
+                    if turned_on:
+                        conn.execute('INSERT OR IGNORE INTO %s(user_id, post_id, created_at) VALUES(?,?,?)' % table,
                                      (mid, pid, now()))
                     conn.commit()
                     total = conn.execute(
@@ -436,7 +489,7 @@ ORDER BY t DESC LIMIT 30''', {'me': mid}).fetchall()
                         % (base, table), (pid, pid)).fetchone()[0]
                     key = 'liked' if action == 'like' else 'starred'
                     cnt = 'likes' if action == 'like' else 'stars'
-                    return self.send_json({key: not on, cnt: total})
+                    return self.send_json({key: turned_on, cnt: total})
                 # comments
                 data = self.read_json()
                 if data is None:
@@ -457,15 +510,13 @@ ORDER BY t DESC LIMIT 30''', {'me': mid}).fetchall()
                     return self.fail('自己关注自己?散帅要脸')
                 if not conn.execute('SELECT 1 FROM users WHERE id=?', (target,)).fetchone():
                     return self.fail('用户不存在', 404)
-                on = conn.execute('SELECT 1 FROM follows WHERE follower=? AND followee=?',
-                                  (mid, target)).fetchone()
-                if on:
-                    conn.execute('DELETE FROM follows WHERE follower=? AND followee=?', (mid, target))
-                else:
-                    conn.execute('INSERT INTO follows(follower, followee, created_at) VALUES(?,?,?)',
+                cur = conn.execute('DELETE FROM follows WHERE follower=? AND followee=?', (mid, target))
+                turned_on = cur.rowcount == 0
+                if turned_on:
+                    conn.execute('INSERT OR IGNORE INTO follows(follower, followee, created_at) VALUES(?,?,?)',
                                  (mid, target, now()))
                 conn.commit()
-                return self.send_json({'followed': not on})
+                return self.send_json({'followed': turned_on})
 
             self.fail('接口不存在', 404)
         finally:

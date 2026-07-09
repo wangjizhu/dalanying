@@ -102,18 +102,19 @@ async function toggleLike(id) {
   if (!ME) return openAuth("login");
   const p = ALL.find((x) => x.id === id) || (currentPost && currentPost.id === id ? currentPost : null);
   if (!p) return;
+  const prevLiked = p.liked, prevLikes = p.likes; // 先快照,apply 会变异 p 本身
   const apply = (liked, likes) => {
     const item = ALL.find((x) => x.id === id);
     if (item) { item.liked = liked; item.likes = likes; syncCardLike(item); }
     if (currentPost && currentPost.id === id) { currentPost.liked = liked; currentPost.likes = likes; syncModalActs(currentPost); }
   };
-  apply(!p.liked, p.likes + (p.liked ? -1 : 1)); // 乐观更新
+  apply(!prevLiked, prevLikes + (prevLiked ? -1 : 1)); // 乐观更新
   try {
-    const d = await api("/api/posts/" + id + "/like", "POST", {});
+    const d = await api("/api/posts/" + id + "/like", "POST");
     apply(d.liked, d.likes);
     if (d.liked) toast("已点赞,散帅眼光不错 💙");
   } catch (e) {
-    apply(p.liked, p.likes); // 回滚
+    apply(prevLiked, prevLikes); // 用快照回滚
     if (!isAuthErr(e)) toast(e.message);
   }
 }
@@ -122,7 +123,7 @@ $("pmStar").addEventListener("click", async () => {
   if (!currentPost) return;
   if (!ME) return openAuth("login");
   try {
-    const d = await api("/api/posts/" + currentPost.id + "/star", "POST", {});
+    const d = await api("/api/posts/" + currentPost.id + "/star", "POST");
     currentPost.starred = d.starred;
     currentPost.stars = d.stars;
     const item = ALL.find((x) => x.id === currentPost.id);
@@ -209,9 +210,11 @@ $("pmFollow").addEventListener("click", async () => {
   if (!currentPost) return;
   if (!ME) return openAuth("login");
   try {
-    const d = await api("/api/users/" + currentPost.author.id + "/follow", "POST", {});
+    const d = await api("/api/users/" + currentPost.author.id + "/follow", "POST");
     currentPost.followed = d.followed;
     setFollowUI(d.followed);
+    ME.stats.following += d.followed ? 1 : -1; // 「我」面板的关注数同步
+    updateMeUI();
     toast(d.followed ? "已关注 " + currentPost.author.name + ",兄弟常来 🤝" : "已取消关注");
   } catch (e) { if (!isAuthErr(e)) toast(e.message); }
 });
@@ -273,6 +276,7 @@ $("navNotif").addEventListener("click", async () => {
   try {
     const d = await api("/api/notifications");
     $("notifBadge").style.display = "none";
+    if (d.items.length) localStorage.setItem(notifSeenKey(), d.items[0].date); // 最新一条即最大时间戳
     if (!d.items.length) {
       $("notifList").innerHTML = `<div class="notif-empty">还没有通知,先去发一篇笔记攒人气 💙</div>`;
       return;
@@ -304,11 +308,13 @@ $("topAvatar").addEventListener("click", () => { ME ? openMask("meMask") : openA
 $("btnCreator").addEventListener("click", () => toast("散帅创作中心装修中,敬请期待 🚧"));
 $("pfAction").addEventListener("click", async () => {
   if (!ME) { closeMasks(); openAuth("login"); return; }
-  try { await api("/api/auth/logout", "POST", {}); } catch (e) { /* 忽略 */ }
+  try { await api("/api/auth/logout", "POST"); } catch (e) { /* 忽略 */ }
   ME = null;
   closeMasks();
   updateMeUI();
-  try { await refreshPosts(); renderFeed(); } catch (e) { /* 忽略 */ }
+  try { await refreshPosts(); }
+  catch (e) { ALL.forEach((p) => { p.liked = false; p.starred = false; }); } // 刷新失败也不残留上个用户的状态
+  renderFeed();
   toast("已退出,江湖再见 👋");
 });
 $("authSubmit").addEventListener("click", submitAuth);

@@ -105,6 +105,37 @@ ok('weak input = 400', s == 400, s)
 s, d = call('/api/users/%d/follow' % aid, {}, 'POST')
 ok('self-follow rejected (400)', s == 400, s)
 
+# ---- keep-alive 失步回归:urllib 每次新建连接测不出来,用 http.client 显式复用 ----
+import http.client  # noqa: E402
+
+kc = http.client.HTTPConnection('127.0.0.1', 38399, timeout=5)
+kc.request('POST', '/api/auth/login',
+           json.dumps({'username': '铁块搬运工', 'password': 'sanshuai'}),
+           {'Content-Type': 'application/json'})
+r = kc.getresponse()
+cookie = (r.getheader('Set-Cookie') or '').split(';')[0]
+r.read()
+kc.request('POST', '/api/posts/%d/like' % pid, '{}',
+           {'Content-Type': 'application/json', 'Cookie': cookie})
+r = kc.getresponse(); like_status = r.status; r.read()
+kc.request('GET', '/api/me', headers={'Cookie': cookie})
+r = kc.getresponse(); me_status = r.status
+me_name = json.loads(r.read().decode('utf-8')).get('user', {}).get('name')
+ok('keep-alive: POST带body后同连接GET不失步', like_status == 200 and me_status == 200 and me_name == '铁块搬运工',
+   (like_status, me_status, me_name))
+kc.request('POST', '/api/posts/%d/like' % pid, '{}',
+           {'Content-Type': 'application/json', 'Cookie': cookie})  # 撤销,不留脏数据
+kc.getresponse().read()
+
+kc2 = http.client.HTTPConnection('127.0.0.1', 38399, timeout=5)
+kc2.request('POST', '/api/posts/%d/comments' % pid, json.dumps({'text': 'x'}),
+            {'Content-Type': 'application/json'})
+r = kc2.getresponse(); s401 = r.status; r.read()
+kc2.request('GET', '/api/posts')
+r = kc2.getresponse()
+ok('keep-alive: 401早退分支排空body', s401 == 401 and r.status == 200
+   and len(json.loads(r.read().decode('utf-8'))['posts']) >= 20, s401)
+
 srv.shutdown()
 fails = [n for n, c in checks if not c]
 print('-' * 40)
